@@ -1,0 +1,48 @@
+apiVersion: v1
+kind: Template
+labels:
+  template: application-template-sample-pipeline
+message: |-
+  A Jenkins server will be automatically instantiated in this project to manage
+  the Pipeline BuildConfig created by this template.  You will be able to log in to
+  it using your OpenShift user credentials.
+metadata:
+  annotations:
+    openshift.io/display-name: Pipeline Build Example
+    iconClass: icon-jenkins
+  name: jenkins-pipeline-example
+parameters:
+- description: The name assigned to all of the frontend objects defined in this template.
+  displayName: Name
+  name: NAME
+  required: true
+  value: example
+- name: PROJECT_NAME
+  displayName: "Project Name"
+  description: The project name assigned to all resources which needs to execute Integration Tests.
+  required: true
+- name: DEV_PROJECT_NAME
+  displayName: "Development Project Name"
+  required: true
+objects:
+- apiVersion: v1
+  kind: BuildConfig
+  metadata:
+    annotations:
+      pipeline.alpha.openshift.io/uses: '[{"name": "${NAME}", "namespace": "", "kind": "DeploymentConfig"}]'
+    labels:
+      name: sample-pipeline
+    name: sample-pipeline
+  spec:
+    source:
+      git:
+        uri: "https://github.com/kanekoh/sample-jenkins-pipeline"
+    strategy:
+      jenkinsPipelineStrategy:
+        jenkinsfilePath: Jenkinsfile
+        env:
+          - name: "MYPROJECT"
+            value: "${PROJECT_NAME}"
+          - name: "DEV_PROJECT"
+            value: "${DEV_PROJECT_NAME}"
+      type: JenkinsPipeline
