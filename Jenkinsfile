@@ -17,7 +17,7 @@ node('maven') {
           def models = openshift.process("openshift//rhdm71-trial-ephemeral")
           def created = openshift.apply(models)
 
-          // 複数のDeployment Configが同時に生成された場合の監視
+          // DeploymentConfigが複数存在するが、そのうち1つを監視
           def dc = openshift.selector('dc', "${APP_NAME}")
           dc.related('pods').untilEach{
             return it.object().status.phase == 'Running'
@@ -48,12 +48,27 @@ node('maven') {
       }
 
 
+      // イメージタグの付与でも同じアプリ名を利用するためスコープはstageの外とした
       def APP_NAME="s2i-fuse71-eap-camel-amq"
       stage('Deploy camel application with S2I'){
         echo "Deploy a camel app"
 
         if(openshift.selector('dc', "${APP_NAME}").exists()){
           echo "${APP_NAME} already has been deployed"
+
+          def bc = openshift.selector("bc", "${APP_NAME}")
+          def buildSelector = bc.startBuild()
+          buildSelector.logs('-f')
+
+          def latestDeploymentVersion = openshift.selector('dc',"${APP_NAME}").object().status.latestVersion
+          def rc = openshift.selector('rc', "${APP_NAME}-${latestDeploymentVersion}")
+          rc.untilEach(1){
+            def rcMap = it.object()
+            echo "${rcMap}"
+            return (rcMap.status.replicas.equals(rcMap.status.readyReplicas))
+          }
+
+
         }else{
           def models = openshift.process("openshift//acom-cicd-example-template")
           def created = openshift.apply(models)
@@ -79,13 +94,14 @@ node('maven') {
         // TBD
       }
 
-      // Copy Image to Nexus Docker Registry
+      // 開発環境へのプロモーション
       stage('Copy Image to Docker Registry') {
         echo "Copy image to Docker Registry"
         openshift.tag("${MYPROJECT}/${APP_NAME}:latest", "${DEVPROJECT}/${APP_NAME}:latest")
       }
     }
 
+    // BGを実施するため、アプリ名を定義しておく。
     def DEV_APP_NAME="s2i-fuse71-eap-camel-amq"
     openshift.withProject("${DEVPROJECT}"){
       // Blue/Green Deployment into Production
@@ -131,7 +147,7 @@ node('maven') {
       stage('Deploy rule'){
         echo "Deploy rule into dev environment"
 
-        git url: 'ssh://git@gitlab.consulting.redhat.com:2222/hkaneko/kihonhensaiyoryoku.git', credentialsId: "git-cert", branch: "sample"
+        //git url: 'ssh://git@gitlab.consulting.redhat.com:2222/hkaneko/kihonhensaiyoryoku.git', credentialsId: "git-cert", branch: "sample"
 
         sh '''
          mvn -Dsample.kie.host=myapp-kieserver-dev.apps.3f32.example.opentlc.com \
