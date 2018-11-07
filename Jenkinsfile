@@ -6,29 +6,6 @@ node('maven') {
     openshift.withProject("${MYPROJECT}"){
       echo "Using project ${openshift.project()}"
 
-      stage('Deploy nexus server'){
-        def APP_NAME="nexus"
-        if(openshift.selector('dc', "${APP_NAME}").exists()){
-          echo "${APP_NAME} already has been deployed."
-        } else {
-          def models = openshift.process("openshift//nexus3")
-          def created = openshift.apply(models)
-          def dc = created.narrow('dc')
-
-
-          dc.related('pods').untilEach{
-            return it.object().status.phase == 'Running'
-          }
-
-          def latestDeploymentVersion = openshift.selector('dc',"${APP_NAME}").object().status.latestVersion
-          def rc = openshift.selector('rc', "${APP_NAME}-${latestDeploymentVersion}")
-          rc.untilEach(1){
-            def rcMap = it.object()
-            return (rcMap.status.replicas.equals(rcMap.status.readyReplicas))
-          }
-        }
-      }
-
       // Create Environment for DM
       stage('Create DM environment') {
         def APP_NAME="myapp-kieserver"
@@ -75,20 +52,24 @@ node('maven') {
       stage('Deploy camel application with S2I'){
         echo "Deploy a camel app"
 
-        def models = openshift.process("openshift//acom-cicd-example-template")
-        def created = openshift.apply(models)
+        if(openshift.selector('dc', "${APP_NAME}").exists()){
+          echo "${APP_NAME} already has been deployed"
+        }else{
+          def models = openshift.process("openshift//acom-cicd-example-template")
+          def created = openshift.apply(models)
 
-        def dc = openshift.selector('dc', "${APP_NAME}")
-        dc.related('pods').untilEach{
-          return it.object().status.phase == 'Running'
-        }
+          def dc = openshift.selector('dc', "${APP_NAME}")
+          dc.related('pods').untilEach{
+            return it.object().status.phase == 'Running'
+          }
 
-        def latestDeploymentVersion = openshift.selector('dc',"${APP_NAME}").object().status.latestVersion
-        def rc = openshift.selector('rc', "${APP_NAME}-${latestDeploymentVersion}")
-        rc.untilEach(1){
-          def rcMap = it.object()
-          echo "${rcMap}"
-          return (rcMap.status.replicas.equals(rcMap.status.readyReplicas))
+          def latestDeploymentVersion = openshift.selector('dc',"${APP_NAME}").object().status.latestVersion
+          def rc = openshift.selector('rc', "${APP_NAME}-${latestDeploymentVersion}")
+          rc.untilEach(1){
+            def rcMap = it.object()
+            echo "${rcMap}"
+            return (rcMap.status.replicas.equals(rcMap.status.readyReplicas))
+          }
         }
       }
 
