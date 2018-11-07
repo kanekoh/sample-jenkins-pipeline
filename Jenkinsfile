@@ -61,7 +61,7 @@ node('maven') {
 
         git url: 'ssh://git@gitlab.consulting.redhat.com:2222/hkaneko/kihonhensaiyoryoku.git', credentialsId: "git-cert"
         sh '''
-        cd kihonhensaiyoryoku; mvn -Dsample.kie.host=myapp-kieserver.${MYPROJECT}.svc.cluster.local \
+         mvn -Dsample.kie.host=myapp-kieserver.${MYPROJECT}.svc.cluster.local \
           -Dsample.kie.contextpath="/" \
           -Dsample.kie.username=adminUser \
           -Dsample.kie.password=RedHat \
