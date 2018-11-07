@@ -59,7 +59,7 @@ node('maven') {
       stage('Build a rule engine'){
         echo "Build rule engine"
 
-        git url: 'ssh://git@gitlab.consulting.redhat.com:2222/hkaneko/kihonhensaiyoryoku.git', credentialsId: "git-cert"
+        git url: 'ssh://git@gitlab.consulting.redhat.com:2222/hkaneko/kihonhensaiyoryoku.git', credentialsId: "git-cert", branch: "sample"
 
         sh '''
          mvn -Dsample.kie.host=myapp-kieserver-sample9.apps.3f32.example.opentlc.com \
