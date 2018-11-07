@@ -56,8 +56,8 @@ node('maven') {
         }
       }
 
-      stage('Build a rule engine'){
-        echo "Build rule engine"
+      stage('Deploy a rule engine'){
+        echo "Deploy rule engine"
 
         git url: 'ssh://git@gitlab.consulting.redhat.com:2222/hkaneko/kihonhensaiyoryoku.git', credentialsId: "git-cert", branch: "sample"
 
@@ -148,8 +148,18 @@ node('maven') {
       }
 
       stage('Deploy rule'){
-        // TBD
         echo "Deploy rule into dev environment"
+
+        git url: 'ssh://git@gitlab.consulting.redhat.com:2222/hkaneko/kihonhensaiyoryoku.git', credentialsId: "git-cert", branch: "sample"
+
+        sh '''
+         mvn -Dsample.kie.host=myapp-kieserver-dev.apps.3f32.example.opentlc.com \
+          -Dsample.kie.contextpath="/" \
+          -Dsample.kie.username=adminUser \
+          -Dsample.kie.password=RedHat \
+          kieserver:deploy
+        '''
+
       }
 
       stage('Switch over to new Version') {
