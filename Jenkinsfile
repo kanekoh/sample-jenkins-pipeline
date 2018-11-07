@@ -58,8 +58,10 @@ node('maven') {
 
       stage('Build a rule engine'){
         echo "Build rule engine"
+
+        git url: 'https://gitlab.consulting.redhat.com:2222/acom/kihonhensaiyoryoku.git', credentialsId: "hkaneko@redhat.comStudyEnglish1hour."
         sh '''
-        mvn -Dsample.kie.host=myapp-kieserver.${MYPROJECT}.svc.cluster.local \
+        cd kihonhensaiyoryoku; mvn -Dsample.kie.host=myapp-kieserver.${MYPROJECT}.svc.cluster.local \
           -Dsample.kie.contextpath="/" \
           -Dsample.kie.username=adminUser \
           -Dsample.kie.password=RedHat \
