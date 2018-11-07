@@ -58,6 +58,13 @@ node('maven') {
 
       stage('Build a rule engine'){
         echo "Build rule engine"
+        sh '''
+        mvn -Dsample.kie.host=myapp-kieserver.${MYPROJECT}.svc.cluster.local \
+          -Dsample.kie.contextpath=\/ \
+          -Dsample.kie.username=adminUser \
+          -Dsample.kie.password=RedHat \
+          kieserver:deploy
+        '''
       }
 
 
@@ -119,7 +126,6 @@ node('maven') {
 
 
       stage('Blue/Green Production Deployment') {
-        // TBD
         echo "Blue/Green Production application to ${tag}."
         def dc = openshift.selector("dc", "${DEV_APP_NAME}-${tag}")
 
@@ -153,7 +159,6 @@ node('maven') {
         )
 
         echo "Switching Production application to ${tag}."
-        // TBD
         openshift.set("route-backends", "${DEV_APP_NAME}", "${DEV_APP_NAME}-${tag}=100", "${DEV_APP_NAME}-${altTag}=0")}
     }
   }
