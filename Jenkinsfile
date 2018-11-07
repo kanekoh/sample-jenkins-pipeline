@@ -61,8 +61,6 @@ node('maven') {
 
         git url: 'ssh://git@gitlab.consulting.redhat.com:2222/hkaneko/kihonhensaiyoryoku.git', credentialsId: "git-cert"
 
-        sh 'mvn clean package -Dartifact=com.redhat.example.acom:kihon-hensai-yoryoku:1.0.0'
-
         sh '''
          mvn -Dsample.kie.host=myapp-kieserver-sample9.apps.3f32.example.opentlc.com \
           -Dsample.kie.contextpath="/" \
