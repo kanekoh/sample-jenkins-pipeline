@@ -60,7 +60,7 @@ node('maven') {
         echo "Build rule engine"
         sh '''
         mvn -Dsample.kie.host=myapp-kieserver.${MYPROJECT}.svc.cluster.local \
-          -Dsample.kie.contextpath=\/ \
+          -Dsample.kie.contextpath="/"" \
           -Dsample.kie.username=adminUser \
           -Dsample.kie.password=RedHat \
           kieserver:deploy
