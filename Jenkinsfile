@@ -61,7 +61,7 @@ node('maven') {
 
         git url: 'ssh://git@gitlab.consulting.redhat.com:2222/hkaneko/kihonhensaiyoryoku.git', credentialsId: "git-cert"
         sh '''
-         mvn -Dsample.kie.host=s2i-fuse71-eap-camel-amq-sample9.apps.3f32.example.opentlc.com \
+         mvn -Dsample.kie.host=myapp-kieserver-sample9.apps.3f32.example.opentlc.com \
           -Dsample.kie.contextpath="/" \
           -Dsample.kie.username=adminUser \
           -Dsample.kie.password=RedHat \
