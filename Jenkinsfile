@@ -33,18 +33,19 @@ node('maven') {
         }
       }
 
+      def RULE_SOURCE_REPO="ssh://git@gitlab.consulting.redhat.com:2222/hkaneko/kihonhensaiyoryoku.git"
+      def TEST_KIE_SERVER_URL="myapp-kieserver-sample9.apps.3f32.example.opentlc.com"
       stage('Deploy a rule engine'){
         echo "Deploy rule engine"
+        git url: "${RULE_SOURCE_REPO}", credentialsId: "git-cert", branch: "sample"
 
-        git url: 'ssh://git@gitlab.consulting.redhat.com:2222/hkaneko/kihonhensaiyoryoku.git', credentialsId: "git-cert", branch: "sample"
-
-        sh '''
-         mvn -Dsample.kie.host=myapp-kieserver-sample9.apps.3f32.example.opentlc.com \
+        sh """
+         mvn -Dsample.kie.host=${TEST_KIE_SERVER_URL} \
           -Dsample.kie.contextpath="/" \
           -Dsample.kie.username=adminUser \
           -Dsample.kie.password=RedHat \
           kieserver:deploy
-        '''
+        """
       }
 
 
@@ -144,18 +145,19 @@ node('maven') {
 
       }
 
+      def DEV_KIE_SERVER_URL="myapp-kieserver-dev.apps.3f32.example.opentlc.com"
+      def DEV_KIE_USERNAME="adminUser"
+      def DEV_KIE_PASSWORD="RedHat"
       stage('Deploy rule'){
         echo "Deploy rule into dev environment"
 
-        //git url: 'ssh://git@gitlab.consulting.redhat.com:2222/hkaneko/kihonhensaiyoryoku.git', credentialsId: "git-cert", branch: "sample"
-
-        sh '''
-         mvn -Dsample.kie.host=myapp-kieserver-dev.apps.3f32.example.opentlc.com \
+        sh """
+         mvn -Dsample.kie.host=${DEV_KIE_SERVER_URL} \
           -Dsample.kie.contextpath="/" \
-          -Dsample.kie.username=adminUser \
-          -Dsample.kie.password=RedHat \
+          -Dsample.kie.username=${DEV_KIE_USERNAME} \
+          -Dsample.kie.password=${DEV_KIE_PASSWORD} \
           kieserver:deploy
-        '''
+        """
 
       }
 

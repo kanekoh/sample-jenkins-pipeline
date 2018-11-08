@@ -24,6 +24,23 @@ parameters:
 - name: DEV_PROJECT_NAME
   displayName: "Development Project Name"
   required: true
+- name: NEXUS_REPO_URL
+  displayName: "Nexus server URL"
+  required: true
+- name: NEXUS_REPO_USER
+  required: true
+  value: admin
+- name: NEXUS_REPO_USER_PASS
+  required: true
+  value: admin123
+- name: TEST_KIE_SERVER_URL
+  required: true
+- name: DEV_KIE_SERVER_URL
+  required: true
+- name: DEV_KIE_USERNAME
+  required: true
+- name: DEV_KIE_PASSWORD
+  required: true
 objects:
 - apiVersion: v1
   kind: BuildConfig
